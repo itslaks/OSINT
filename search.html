@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFOSIGHT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 3px solid #ff1493;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ff1493, 0 0 20px #ff1493, 0 0 30px #ff1493;
+            animation: borderPulse 2s infinite alternate;
+        }
+        @keyframes borderPulse {
+            from { box-shadow: 0 0 10px #ff1493, 0 0 20px #ff1493, 0 0 30px #ff1493; }
+            to { box-shadow: 0 0 15px #ff1493, 0 0 30px #ff1493, 0 0 45px #ff1493; }
+        }
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ff1493;
+            text-shadow: 0 0 10px #ff1493, 0 0 20px #ff1493, 0 0 30px #ff1493;
+            animation: neon 1.5s ease-in-out infinite alternate, float 6s ease-in-out infinite;
+        }
+        @keyframes neon {
+            from { text-shadow: 0 0 10px #ff1493, 0 0 20px #ff1493, 0 0 30px #ff1493; }
+            to { text-shadow: 0 0 5px #ff1493, 0 0 10px #ff1493, 0 0 15px #ff1493; }
+        }
+    
+        #searchForm {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            background-color: #333;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px #ff1493;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: #ff1493;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #ff69b4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+        }
+        #alphabet {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .letter {
+            margin: 5px;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .letter:hover, .letter.active {
+            background-color: #ff1493;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+        }
+        #results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        .platform {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        .platform:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+        }
+        .platform:before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: #ff1493;
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .platform:hover:before {
+            opacity: 1;
+        }
+        .platform a {
+            color: #ff69b4;
+            text-decoration: none;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .platform a:hover {
+            text-decoration: underline;
+        }
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -10;
+        }
+        .particle {
+            position: absolute;
+            background: #ff1493;
+            border-radius: 20%;
+            opacity: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container">
+        <h1>INFOSIGHT</h1>
+        <form id="searchForm">
+            <input type="text" id="username" placeholder="Enter username" required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="alphabet"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('searchForm');
+        const usernameInput = document.getElementById('username');
+        const resultsDiv = document.getElementById('results');
+        const alphabetDiv = document.getElementById('alphabet');
+
+        // Create alphabet buttons
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+            const btn = document.createElement('div');
+            btn.className = 'letter';
+            btn.textContent = letter;
+            btn.onclick = () => filterResults(letter);
+            alphabetDiv.appendChild(btn);
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchUser();
+        });
+
+        usernameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchUser();
+            }
+        });
+
+        function searchUser() {
+            const username = usernameInput.value;
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'username=' + encodeURIComponent(username)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultsDiv.innerHTML = '<p>No profiles found</p>';
+                } else {
+                    displayResults(data);
+                }
+            });
+        }
+
+        function displayResults(data) {
+            resultsDiv.innerHTML = '';
+            for (let platform in data) {
+                const div = document.createElement('div');
+                div.className = 'platform';
+                div.innerHTML = `<strong>${platform}:</strong> <a href="${data[platform]}" target="_blank" title="${data[platform]}">${data[platform]}</a>`;
+                resultsDiv.appendChild(div);
+            }
+        }
+
+        function filterResults(letter) {
+            document.querySelectorAll('.letter').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.letter:nth-child(${letter.charCodeAt(0) - 64})`).classList.add('active');
+            
+            document.querySelectorAll('.platform').forEach(el => {
+                if (el.querySelector('strong').textContent[0].toUpperCase() === letter) {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        // Background animation
+        const backgroundAnimation = document.querySelector('.background-animation');
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 5 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            backgroundAnimation.appendChild(particle);
+
+            gsap.to(particle, {
+                y: '100vh',
+                duration: Math.random() * 2 + 1,
+                ease: 'none',
+                onComplete: () => {
+                    particle.remove();
+                    createParticle();
+                }
+            });
+        }
+
+        for (let i = 0; i < 50; i++) {
+            createParticle();
+        }
+    });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+</body>
+</html>
